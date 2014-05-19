@@ -1,0 +1,82 @@
+﻿@model DataManagement.Search
+@{
+    ViewBag.Title = "Search";
+}
+
+<h2>Search</h2>
+
+<section>
+    @if (Request.IsAuthenticated)
+    {
+    <aside>
+        <script>
+            function loadFunction(sel) {
+                var ids = []; 
+                var queries = []; 
+                var datesfrom = []; 
+                var datesto = [];
+                @foreach (DataManagement.Search search in ViewBag.UserData)
+                {
+                    @:ids.push(@search.Id); queries.push("@search.Query"); datesfrom.push("@search.From"); datesto.push("@search.To");
+                }
+                for (var i=0; i < ids.length; i++)
+                {
+                    if(ids[i] == sel.value){
+                        document.getElementById("Query").value = queries[i]; 
+                        document.getElementById("DateFrom").value = datesfrom[i]; 
+                        document.getElementById("DateTo").value = datesto[i];
+                    }
+                }
+
+            }
+        </script>
+        <select name="searches" onchange="loadFunction(this);" size=5>
+            @if (ViewBag.UserData != null)
+            {
+                foreach (var search in ViewBag.UserData)
+                {
+                    <option value="@search.Id">@search.Query @search.From.Date @search.To.Date</option>
+                }
+            }
+        </select>
+        
+    </aside>
+    }
+    @using (Html.BeginForm("Search", "Search"))
+    {
+        <fieldset>
+            Search String: @Html.TextBox("Query")
+            <br />
+            Date from: @Html.TextBox("DateFrom")
+            <br />
+            Date to: @Html.TextBox("DateTo")
+            <br />
+            <input type="submit" value="Search" onclick="alert('Searching may take a while')"/>
+        </fieldset>
+    }
+    
+</section>
+
+<section>
+    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+    <script>
+    function initialize() {
+        var mapOptions = {
+            zoom: 2,
+            center: new google.maps.LatLng(0, 0)
+        }
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        @if (Model != null && Model.Tweets != null) {
+                foreach(var item in Model.Tweets){
+                    if (item.Latitude != 0 && item.Longitude != 0) {
+                        @:new google.maps.Marker({position: new google.maps.LatLng(@item.Latitude, @item.Longitude), map: map, title: "@item.User"});
+                    }
+                }
+            }
+    }
+
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+    </script>
+    <div id="map-canvas" style="height:600px"></div>
+</section>

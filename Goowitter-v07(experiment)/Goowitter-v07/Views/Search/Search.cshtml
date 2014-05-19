@@ -1,0 +1,26 @@
+﻿@model DataManagement.Search
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script>
+    function initialize() {
+        var mapOptions = {
+            zoom: 2,
+            center: new google.maps.LatLng(0, 0)
+        }
+        var map = new google.maps.Map(document.getElementById('map-canvas'), mapOptions);
+        @if (Model != null && Model.Tweets != null) {
+                foreach(var item in Model.Tweets){
+                    if (item.Latitude != 0 && item.Longitude != 0) {
+                        @:new google.maps.Marker({position: new google.maps.LatLng(@item.Latitude, @item.Longitude), map: map, title: "@item.User"});
+                    }
+                }
+            }
+    }
+    
+    google.maps.event.addDomListener(window, 'load', initialize);
+
+  @*  @if (Model != null){
+        @:setInterval(function () {$('#map-canvas').load('@Url.Action("RefreshMap","Search", Model)');}, 10000);
+    }*@
+</script>
+<div id="map-canvas" style="height:600px"></div>
