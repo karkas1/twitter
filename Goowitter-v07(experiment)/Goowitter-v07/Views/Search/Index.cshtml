@@ -9,27 +9,7 @@
     @if (Request.IsAuthenticated)
     {
     <aside>
-        <script>
-            function loadFunction(sel) {
-                var ids = []; 
-                var queries = []; 
-                var datesfrom = []; 
-                var datesto = [];
-                @foreach (DataManagement.Search search in ViewBag.UserData)
-                {
-                    @:ids.push(@search.Id); queries.push("@search.Query"); datesfrom.push("@search.From"); datesto.push("@search.To");
-                }
-                for (var i=0; i < ids.length; i++)
-                {
-                    if(ids[i] == sel.value){
-                        document.getElementById("Query").value = queries[i]; 
-                        document.getElementById("DateFrom").value = datesfrom[i]; 
-                        document.getElementById("DateTo").value = datesto[i];
-                    }
-                }
-
-            }
-        </script>
+        
         <select name="searches" onchange="loadFunction(this);" size=5>
             @if (ViewBag.UserData != null)
             {
@@ -58,8 +38,13 @@
 </section>
 
 <section>
-    <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-    <script>
+    <div id="map-canvas" style="height:600px"></div>
+</section>
+
+<script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
+<script>
+    google.maps.event.addDomListener(window, 'load', initialize);
+
     function initialize() {
         var mapOptions = {
             zoom: 2,
@@ -74,9 +59,27 @@
                 }
             }
     }
+</script>
 
-    google.maps.event.addDomListener(window, 'load', initialize);
-
-    </script>
-    <div id="map-canvas" style="height:600px"></div>
-</section>
+<script>
+    function loadFunction(sel) {
+        var ids = [];
+        var queries = [];
+        var datesfrom = [];
+        var datesto = [];
+        @if (ViewBag.UserData != null) { 
+            foreach (DataManagement.Search search in ViewBag.UserData)
+            {
+                @:ids.push(@search.Id); queries.push("@search.Query"); datesfrom.push("@search.From"); datesto.push("@search.To");
+            }
+            @:for (var i=0; i < ids.length; i++)
+            {
+                @:if(ids[i] == sel.value){
+                    @:document.getElementById("Query").value = queries[i];
+                    @:document.getElementById("DateFrom").value = datesfrom[i];
+                    @:document.getElementById("DateTo").value = datesto[i];
+                @:}
+            }
+        }
+    }
+</script>
